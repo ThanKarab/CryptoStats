@@ -25,7 +25,11 @@ public class CryptoInfoService {
     public List<CryptoNormalizedRangeDTO> getCryptosInfoNormalizedRange(boolean ordered) {
         List<CryptoNormalizedRangeDTO> ranges = new ArrayList<>();
         for (CryptoSymbolEnum symbol : CryptoSymbolEnum.values()) {
-            ranges.add(new CryptoNormalizedRangeDTO(symbol.name(), cryptosInfoRepository.getCryptoInfoRepository(symbol).getNormalizedRange()));
+            var repo = cryptosInfoRepository.getCryptoInfoRepository(symbol);
+            if (repo == null) {
+                continue;
+            }
+            ranges.add(new CryptoNormalizedRangeDTO(symbol.name(), repo.getNormalizedRange()));
         }
         var normRangeDTOComparator = Comparator.comparing(CryptoNormalizedRangeDTO::normalized_range);
         if (ordered) {
@@ -49,8 +53,12 @@ public class CryptoInfoService {
         Double maxNormalizedRange = null;
         CryptoSymbolEnum maxNormalizedRangeSymbol = null;
         for (CryptoSymbolEnum symbol : CryptoSymbolEnum.values()) {
-            var range = cryptosInfoRepository.getCryptoInfoRepository(symbol).getNormalizedRange(date);
-            if (range != null) {
+            var repo = cryptosInfoRepository.getCryptoInfoRepository(symbol);
+            if (repo == null) {  // Repo for that symbol is not initialized
+                continue;
+            }
+            var range = repo.getNormalizedRange(date);
+            if (range != null) {  // Normalized range exists on that date
                 if (maxNormalizedRange == null || range > maxNormalizedRange) {
                     maxNormalizedRange = range;
                     maxNormalizedRangeSymbol = symbol;

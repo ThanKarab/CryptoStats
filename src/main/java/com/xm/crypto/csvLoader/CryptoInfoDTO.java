@@ -4,6 +4,7 @@ import com.opencsv.bean.AbstractBeanField;
 import com.opencsv.bean.CsvBindByName;
 import com.opencsv.bean.CsvCustomBindByName;
 import com.xm.crypto.CryptoSymbolEnum;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -11,6 +12,8 @@ import java.time.LocalDate;
 
 
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class CryptoInfoDTO{
     @CsvBindByName(column = "timestamp", required = true)
     private long timestamp;
@@ -31,7 +34,7 @@ public class CryptoInfoDTO{
 
     @NoArgsConstructor
     public static class MilisToDateConverter extends AbstractBeanField {
-        private final String timezone = "Europe/Athens";    // Move to application properties
+        private final String timezone = "Europe/Athens";    // TODO Move to application properties
 
         @Override
         protected LocalDate convert(String millis_str) {

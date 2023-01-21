@@ -3,6 +3,8 @@ package com.xm.crypto.repositories;
 import com.xm.crypto.CryptoSymbolEnum;
 import com.xm.crypto.csvLoader.CryptoCSVLoader;
 import com.xm.crypto.csvLoader.CryptoInfoDTO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
@@ -13,16 +15,25 @@ import static java.lang.Math.min;
 
 @Repository
 public class CryptosInfoRepository {
-    Map<CryptoSymbolEnum, CryptoInfoRepository> cryptoInfoRepos = new HashMap<>();
+    private static final Logger logger = LoggerFactory.getLogger(CryptosInfoRepository.class);
+
+    private Map<CryptoSymbolEnum, CryptoInfoRepository> cryptoInfoRepos = new HashMap<>();
 
     public CryptosInfoRepository() {
-        Map<CryptoSymbolEnum, List<CryptoInfoDTO>> cryptosInfoPerSymbol =
-                groupCryptoInfoPerSymbol(new CryptoCSVLoader().getCryptoInfos());
+        this(new CryptoCSVLoader().getCryptoInfos());
+    }
+
+    public CryptosInfoRepository(List<CryptoInfoDTO> cryptoInfos) {
+        var cryptosInfoPerSymbol = groupCryptoInfoPerSymbol(cryptoInfos);
 
         // Create one repo per symbol enumeration that exists
         for (CryptoSymbolEnum symbol : CryptoSymbolEnum.values()) {
-            CryptoInfoRepository crypto_repo = new CryptoInfoRepository(cryptosInfoPerSymbol.get(symbol));
-            cryptoInfoRepos.put(symbol, crypto_repo);
+            try {
+                var crypto_repo = new CryptoInfoRepository(cryptosInfoPerSymbol.get(symbol));
+                cryptoInfoRepos.put(symbol, crypto_repo);
+            }catch (Exception exc){
+                logger.error("Could not load information for crypto: " + symbol + "\nException: " + exc);
+            }
         }
     }
 
@@ -55,7 +66,6 @@ public class CryptosInfoRepository {
         private final Comparator<CryptoInfoDTO> cryptoInfoComparator = Comparator.comparing(CryptoInfoDTO::getDate);
         private List<CryptoInfoDTO> sortedCryptoInfosByDate;
         private Map<LocalDate, Double> normalizedRangePerDate;
-
 
         public double getOldestPrice() {
             return oldestPrice;
@@ -134,6 +144,9 @@ public class CryptosInfoRepository {
                 }
                 curDate = cryptoInfo.getDate();
                 curDateCryptoInfos.add(cryptoInfo);
+            }
+            if (curDateCryptoInfos.size() > 0) {
+                normalizedRangePerDate.put(curDate, computeNormalizedRange(curDateCryptoInfos));
             }
         }
 
