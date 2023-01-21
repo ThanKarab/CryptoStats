@@ -15,7 +15,7 @@ Fun project for statistics on cryptos with Java, Spring, Maven and JUnit.
    docker run -d -p 8080:8080 --name app cryptos
    ```
 
-1. Happy reviewing at http://127.0.0.1:8080/crypto_stats/BTC !
+1. Happy reviewing at http://localhost:8080/swagger-ui.html !
 
 
 ### Extra things that were NOT done:
@@ -25,3 +25,4 @@ Fun project for statistics on cryptos with Java, Spring, Maven and JUnit.
    1. Background service or db triggers to load the stats.
 1. Better logs.
 1. More tests.
+1. More detailed swagger documentation.
