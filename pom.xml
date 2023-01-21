@@ -14,7 +14,7 @@
 	<name>crypto</name>
 	<description>Fun project for crypto stats</description>
 	<properties>
-		<java.version>19</java.version>
+		<java.version>17</java.version>
         <junit-jupiter.version>5.9.2</junit-jupiter.version>
 	</properties>
 	<dependencies>
